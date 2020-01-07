@@ -1,0 +1,71 @@
+import subprocess
+import sys
+import os
+
+CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+LIB_PATH = os.path.join(CURRENT_DIRECTORY, 'Libraries')
+
+
+def install_package(package):
+    """
+    Install specific package
+    """
+    print("Running pip install {} to tmp directory".format(package))
+
+    subprocess.check_call([sys.executable, "-m", "pip", 'install', '--install-option',
+                           '--prefix={}'.format(LIB_PATH), package])
+
+
+def install_packages_from_requirements(python_paths=None):
+    """
+    Install our packages to a local directory
+    """
+    if python_paths is None:
+        env = dict()
+    else:
+        if type(python_paths) is not list:
+            python_paths = [python_paths]
+        env = dict(PYTHONPATH=os.pathsep.join(python_paths))
+    print("Running pip install -r requirements.txt to tmp directory")
+    subprocess.check_call([sys.executable, "-m", "pip", 'install', '--install-option',
+                           '--prefix={}'.format(LIB_PATH), "-r", 'requirements.txt'], env=env)
+
+
+def create_asset_collection(path_to_ac, name, other_tags = None):
+    """
+    Create python asset collection from folder
+    """
+    if other_tags is None:
+        other_tags = dict()
+    path_to_ac = os.path.normpath(path_to_ac)
+
+    if not os.path.exists(path_to_ac) or not os.path.isdir(path_to_ac):
+        print('Path \'{0}\' doesn\'t exist or is not a directory'.format(path_to_ac))
+        exit()
+
+    tags = other_tags
+    tags['python_version'] = sys.version
+    tags['os'] = sys.platform
+    tags['Name'] = name
+    print("Adding files to asset Collection")
+    ac = AssetCollection()
+
+    ac.set_tags(tags)
+
+    for (dirpath, dirnames, filenames) in os.walk(path_to_ac):
+        for fn in filenames:
+            rp = os.path.relpath(dirpath, path_to_ac) if dirpath != path_to_ac else ''
+            print('Adding {0}'.format(os.path.join(rp, fn)))
+            acf = AssetCollectionFile(fn, rp, tags={'Executable': None} if os.path.splitext(fn)[1] == '.exe' else None)
+            ac.add_asset(acf, os.path.join(dirpath, fn))
+
+    ac.save()
+
+
+if __name__ == "__main__":
+    full_path = os.path.join(LIB_PATH, 'lib', 'python{}'.format(sys.version[:3]), 'site-packages')
+    print("Adding {} to the system path".format(full_path))
+    #'/home/clinton/development/work/idmtools-python-custom-libs/Libraries/lib/python3.6/site-packages/numpy'
+    sys.path.insert(0, full_path)
+    install_packages_from_requirements(full_path)
+    #create_asset_collection(LIB_PATH)
