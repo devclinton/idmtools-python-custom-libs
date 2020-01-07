@@ -43,6 +43,7 @@ def create_fractal(min_x, max_x, min_y, max_y, image, iters):
 if __name__ == '__main__':
     #load config.json
     config = json.load(open('config.json'))
+    print('Config: ' + config)
     image = np.zeros((500 * 2, 750 * 2), dtype=np.uint8)
     s = timer()
     create_fractal(config['min_x'], config['max_x'], config['min_y'], config['max_y'], image, config['iters'])
