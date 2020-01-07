@@ -1,10 +1,14 @@
 import glob
 import hashlib
+import re
 import shutil
 import subprocess
 import sys
 import os
-from COMPS import Client
+import traceback
+from pprint import pprint
+
+from COMPS import Client, AuthManager
 from COMPS.Data import AssetCollection, AssetCollectionFile
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -55,7 +59,6 @@ def create_asset_collection(path_to_ac, name, other_tags = None):
             print('Adding {0}'.format(os.path.join(rp, fn)))
             with open(os.path.join(dirpath, fn), 'rb') as fp:
                 acf = AssetCollectionFile(fn, rp, md5_checksum=hashlib.md5(fp.read()).hexdigest())
-                print(acf.md5_checksum)
             ac.add_asset(acf, os.path.join(dirpath, fn))
     print('Saving collection')
     ac.save()
@@ -70,8 +73,29 @@ def cleanup_files(full_path):
             os.remove(file)
 
 
+class AutoAuthManager(AuthManager):
+    __comps_auth_token_key = 'X-COMPS-Token'
+
+    def __init__(self, hoststring):
+        super().__init__(hoststring)
+        self._hoststring = os.environ.get('COMPS_SERVER') or hoststring
+        self._hoststring = self._hoststring.rstrip('/')
+
+    @property
+    def hoststring(self):
+        return self._hoststring
+
+    def get_auth_token(self):
+        if self._auth_token is None:
+            with open('token.txt', 'r') as t:
+                self._auth_token = t.read()
+        return self.__comps_auth_token_key, self._auth_token
+
+
 if __name__ == "__main__":
-    #Client.login('https://comps2.idmod.org')
+    compshost = 'comps2.idmod.org'
+    Client._Client__auth_manager = AutoAuthManager(compshost)
+    Client.login('https://' + compshost)
     if sys.platform == "win32":
         full_path = os.path.join(LIB_PATH, 'lib', 'site-packages')
     else:
@@ -80,9 +104,19 @@ if __name__ == "__main__":
     if not os.path.exists(full_path):
         os.makedirs(full_path)
     sys.path.insert(1, full_path)
-    install_packages_from_requirements('Assets/model_requirements.txt', sys.path)
-    cleanup_files(full_path)
-    print('Asset size: {} mb'.format(sum(os.path.getsize(f) for f in os.listdir('.') if os.path.isfile(f))/2**20))
-    # ? How do we login when running on comps? Should the idmtools script
-    # cache the token somehow? Maybe pass as environment variable?
-    #create_asset_collection(full_path, name='fractal assets')
+    tb = None
+    try:
+        install_packages_from_requirements('Assets/model_requirements.txt', sys.path)
+        cleanup_files(full_path)
+        print('Asset size: {} mb'.format(sum(os.path.getsize(f) for f in os.listdir('.') if os.path.isfile(f))/2**20))
+        create_asset_collection(full_path, name='fractal assets')
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(tb)
+    finally:
+        print('Cleaning up download')
+        shutil.rmtree(LIB_PATH)
+        print('Cleaning up token file')
+        os.unlink('token.txt')
+        if tb:
+            sys.exit(-1)
