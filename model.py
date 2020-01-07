@@ -1,11 +1,13 @@
+import matplotlib
+# set matplotlib to headless mode
+matplotlib.use("Agg")
 import json
 from timeit import default_timer as timer
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib.pylab import imshow, jet, savefig, ion
 import numpy as np
 from numba import jit
-from argparse
+
+# adapted from https://numba.pydata.org/numba-doc/dev/user/examples.html
 
 @jit
 def mandel(x, y, max_iters):
@@ -46,10 +48,12 @@ if __name__ == '__main__':
     print('Config: ' + config)
     image = np.zeros((500 * 2, 750 * 2), dtype=np.uint8)
     s = timer()
+    print("Creating Fractal")
     create_fractal(config['min_x'], config['max_x'], config['min_y'], config['max_y'], image, config['iters'])
     e = timer()
     print(e - s)
     imshow(image)
     #jet()
     #ion()
+    print("Saving image")
     savefig('fractal.png')

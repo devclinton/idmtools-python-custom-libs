@@ -69,5 +69,6 @@ if __name__ == "__main__":
         os.makedirs(full_path)
     sys.path.insert(1, full_path)
     install_packages_from_requirements('model_requirements.txt', sys.path)
-    login()
-    create_asset_collection(full_path)
+    from COMPS import Client
+    Client.login('https://comps2.idmod.org')
+    create_asset_collection(full_path, name='fractal assets')
