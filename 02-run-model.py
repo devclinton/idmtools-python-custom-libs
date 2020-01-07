@@ -26,7 +26,7 @@ builder.add_sweep_definition(setParam("max_y"), range(1, 3))
 builder.add_sweep_definition(setParam("iters"), range(10, 40, 10))
 experiment.add_builder(builder)
 
-platform = Platform('COMPS')
+platform = Platform('COMPS2')
 
 em = ExperimentManager(experiment=experiment, platform=platform)
 em.run()
