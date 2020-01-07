@@ -15,7 +15,7 @@ class setParam:
 
 ac = AssetCollection()
 ac.add_directory('Libraries/lib/site-packages')
-experiment = PythonExperiment(name="numba example", model_path=os.path.join("model.py"))
+experiment = PythonExperiment(name="fractals are cool", model_path=os.path.join("model.py"))
 experiment.add_assets(ac)
 
 builder = ExperimentBuilder()
