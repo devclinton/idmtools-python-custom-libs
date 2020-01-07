@@ -1,6 +1,7 @@
 import os
 import sys
 from multiprocessing import cpu_count
+from pprint import pprint
 
 import matplotlib
 # set matplotlib to headless mode
@@ -50,12 +51,14 @@ if __name__ == '__main__':
     # print some debugging info
     print('Python Version: ' + sys.version)
     print('Platform: ' + sys.platform)
-    print('CPU Count: ' + cpu_count())
+    print('Sys Path: ' + str(sys.path))
+    print('CPU Count: ' + str(cpu_count()))
     print ('Environment: ')
-    print(str(dict(os.environ)))
+    pprint(dict(os.environ))
     #load config.json
     config = json.load(open('config.json'))
-    print('Config: ' + config)
+    print('Config: ')
+    pprint(config)
     image = np.zeros((500 * 2, 750 * 2), dtype=np.uint8)
     s = timer()
     print("Creating Fractal")
