@@ -1,3 +1,6 @@
+import os
+import sys
+
 import matplotlib
 # set matplotlib to headless mode
 matplotlib.use("Agg")
@@ -43,6 +46,11 @@ def create_fractal(min_x, max_x, min_y, max_y, image, iters):
     return image
 
 if __name__ == '__main__':
+    # print some debugging info
+    print('Python Version: ' + sys.version)
+    print('Platform: ' + sys.platform)
+    print ('Environment: ')
+    print(str(dict(os.environ)))
     #load config.json
     config = json.load(open('config.json'))
     print('Config: ' + config)

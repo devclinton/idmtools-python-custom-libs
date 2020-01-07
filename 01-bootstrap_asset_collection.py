@@ -1,8 +1,7 @@
 import subprocess
 import sys
 import os
-
-from COMPS
+from COMPS import Client
 from COMPS.Data import AssetCollection, AssetCollectionFile
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -59,16 +58,15 @@ def create_asset_collection(path_to_ac, name, other_tags = None):
 
 
 if __name__ == "__main__":
-    if 'nt' in sys.platform:
+    Client.login('https://comps2.idmod.org')
+    if sys.platform == "win32":
         full_path = os.path.join(LIB_PATH, 'lib', 'site-packages')
     else:
         full_path = os.path.join(LIB_PATH, 'lib', 'python{}'.format(sys.version[:3]), 'site-packages')
     print("Adding {} to the system path".format(full_path))
-    #'/home/clinton/development/work/idmtools-python-custom-libs/Libraries/lib/python3.6/site-packages/numpy'
     if not os.path.exists(full_path):
         os.makedirs(full_path)
     sys.path.insert(1, full_path)
     install_packages_from_requirements('model_requirements.txt', sys.path)
-    from COMPS import Client
-    Client.login('https://comps2.idmod.org')
-    create_asset_collection(full_path, name='fractal assets')
+    # later, once we can specific existing ids to assets, we will add directly here
+    #create_asset_collection(full_path, name='fractal assets')

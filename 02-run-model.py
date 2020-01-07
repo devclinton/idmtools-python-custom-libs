@@ -1,6 +1,5 @@
 import os
-from functools import partial
-from idmtools.assets import Asset
+from idmtools.assets import Asset, AssetCollection
 from idmtools.builders import ExperimentBuilder
 from idmtools.core.platform_factory import Platform
 from idmtools.managers import ExperimentManager
@@ -14,18 +13,17 @@ class setParam:
     def __call__(self, simulation, value):
         return simulation.set_parameter(self.param, value)
 
-
+ac = AssetCollection()
+ac.add_directory('Libraries/lib/site-packages')
 experiment = PythonExperiment(name="numba example", model_path=os.path.join("model.py"))
-# get the asset id from 01-bootstrap_asset_collection.py
-experiment.add_asset(Asset(id=''))
-
+experiment.add_assets(ac)
 
 builder = ExperimentBuilder()
 builder.add_sweep_definition(setParam("min_x"), range(-2, 0))
 builder.add_sweep_definition(setParam("max_x"), range(1, 3))
 builder.add_sweep_definition(setParam("min_y"), range(-2, 0))
 builder.add_sweep_definition(setParam("max_y"), range(1, 3))
-builder.add_sweep_definition(setParam("iters"), range(10, 40, step=10))
+builder.add_sweep_definition(setParam("iters"), range(10, 40, 10))
 experiment.add_builder(builder)
 
 platform = Platform('COMPS')
