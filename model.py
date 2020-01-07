@@ -1,5 +1,6 @@
 import os
 import sys
+from multiprocessing import cpu_count
 
 import matplotlib
 # set matplotlib to headless mode
@@ -49,6 +50,7 @@ if __name__ == '__main__':
     # print some debugging info
     print('Python Version: ' + sys.version)
     print('Platform: ' + sys.platform)
+    print('CPU Count: ' + cpu_count())
     print ('Environment: ')
     print(str(dict(os.environ)))
     #load config.json
