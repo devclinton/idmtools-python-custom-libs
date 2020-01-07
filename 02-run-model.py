@@ -14,8 +14,10 @@ class setParam:
         return simulation.set_parameter(self.param, value)
 
 ac = AssetCollection()
-ac.add_directory('Libraries/lib/site-packages')
+# Add the libraries to an AssetCollection
+ac.add_directory('Libraries')
 experiment = PythonExperiment(name="fractals are cool", model_path=os.path.join("model.py"))
+# Add asset collection to experiment
 experiment.add_assets(ac)
 
 builder = ExperimentBuilder()
@@ -27,7 +29,6 @@ builder.add_sweep_definition(setParam("iters"), range(10, 40, 10))
 experiment.add_builder(builder)
 
 platform = Platform('COMPS2')
-
 em = ExperimentManager(experiment=experiment, platform=platform)
 em.run()
 em.wait_till_done()
