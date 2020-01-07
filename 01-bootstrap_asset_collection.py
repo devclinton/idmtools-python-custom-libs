@@ -2,23 +2,14 @@ import subprocess
 import sys
 import os
 
+from COMPS
 from COMPS.Data import AssetCollection, AssetCollectionFile
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 LIB_PATH = os.path.join(CURRENT_DIRECTORY, 'Libraries')
 
 
-def install_package(package):
-    """
-    Install specific package
-    """
-    print("Running pip install {} to tmp directory".format(package))
-
-    subprocess.check_call([sys.executable, "-m", "pip", 'install', '--user',
-                           '{}'.format(LIB_PATH), package])
-
-
-def install_packages_from_requirements(python_paths=None):
+def install_packages_from_requirements(requirements_file='requirements.txt', python_paths=None):
     """
     Install our packages to a local directory
     """
@@ -30,8 +21,9 @@ def install_packages_from_requirements(python_paths=None):
         #env = dict(PYTHONPATH=os.pathsep.join(python_paths))
         env = dict(os.environ)
         env['PYTHONPATH'] = os.pathsep.join(python_paths)
-    print("Running pip install -r requirements.txt to tmp directory")
-    subprocess.check_call([sys.executable, "-m", "pip", 'install',  '--prefix', LIB_PATH, "-r", 'requirements.txt'], env=env)
+    print("Running pip install -r {} to tmp directory".format(requirements_file))
+    subprocess.check_call([sys.executable, "-m", "pip", 'install',  '--prefix', LIB_PATH, "-r", requirements_file],
+                          env=env)
 
 
 def create_asset_collection(path_to_ac, name, other_tags = None):
@@ -76,5 +68,6 @@ if __name__ == "__main__":
     if not os.path.exists(full_path):
         os.makedirs(full_path)
     sys.path.insert(1, full_path)
-    install_packages_from_requirements(sys.path)
-    #create_asset_collection(full_path)
+    install_packages_from_requirements('model_requirements.txt', sys.path)
+    login()
+    create_asset_collection(full_path)
