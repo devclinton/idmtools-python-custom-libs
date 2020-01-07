@@ -2,6 +2,8 @@ import subprocess
 import sys
 import os
 
+from COMPS.Data import AssetCollection, AssetCollectionFile
+
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 LIB_PATH = os.path.join(CURRENT_DIRECTORY, 'Libraries')
 
@@ -12,8 +14,8 @@ def install_package(package):
     """
     print("Running pip install {} to tmp directory".format(package))
 
-    subprocess.check_call([sys.executable, "-m", "pip", 'install', '--install-option',
-                           '--prefix={}'.format(LIB_PATH), package])
+    subprocess.check_call([sys.executable, "-m", "pip", 'install', '--user',
+                           '{}'.format(LIB_PATH), package])
 
 
 def install_packages_from_requirements(python_paths=None):
@@ -25,10 +27,11 @@ def install_packages_from_requirements(python_paths=None):
     else:
         if type(python_paths) is not list:
             python_paths = [python_paths]
-        env = dict(PYTHONPATH=os.pathsep.join(python_paths))
+        #env = dict(PYTHONPATH=os.pathsep.join(python_paths))
+        env = dict(os.environ)
+        env['PYTHONPATH'] = os.pathsep.join(python_paths)
     print("Running pip install -r requirements.txt to tmp directory")
-    subprocess.check_call([sys.executable, "-m", "pip", 'install', '--install-option',
-                           '--prefix={}'.format(LIB_PATH), "-r", 'requirements.txt'], env=env)
+    subprocess.check_call([sys.executable, "-m", "pip", 'install',  '--prefix', LIB_PATH, "-r", 'requirements.txt'], env=env)
 
 
 def create_asset_collection(path_to_ac, name, other_tags = None):
@@ -60,12 +63,18 @@ def create_asset_collection(path_to_ac, name, other_tags = None):
             ac.add_asset(acf, os.path.join(dirpath, fn))
 
     ac.save()
+    print('done - created AC ' + str(ac.id))
 
 
 if __name__ == "__main__":
-    full_path = os.path.join(LIB_PATH, 'lib', 'python{}'.format(sys.version[:3]), 'site-packages')
+    if 'nt' in sys.platform:
+        full_path = os.path.join(LIB_PATH, 'lib', 'site-packages')
+    else:
+        full_path = os.path.join(LIB_PATH, 'lib', 'python{}'.format(sys.version[:3]), 'site-packages')
     print("Adding {} to the system path".format(full_path))
     #'/home/clinton/development/work/idmtools-python-custom-libs/Libraries/lib/python3.6/site-packages/numpy'
-    sys.path.insert(0, full_path)
-    install_packages_from_requirements(full_path)
-    #create_asset_collection(LIB_PATH)
+    if not os.path.exists(full_path):
+        os.makedirs(full_path)
+    sys.path.insert(1, full_path)
+    install_packages_from_requirements(sys.path)
+    #create_asset_collection(full_path)
